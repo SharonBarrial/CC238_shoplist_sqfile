@@ -74,4 +74,40 @@ class DbHelper{
       );
     });
   }
+
+  //mostrar "items"
+  Future<List<ListItems>> getItems(int idList) async {
+    final List<Map<String, dynamic>> maps = await db!.query('items', where: 'idList = ?', whereArgs: [idList]);
+
+    return List.generate(maps.length, (i) {
+      return ListItems(
+        maps[i]['id'],
+        maps[i]['idList'],
+        maps[i]['name'],
+        maps[i]['quantity'],
+        maps[i]['note'],
+      );
+    });
+  }
+
+  //delete "lists"
+  Future<int> deleteList(ShoppingList list) async{
+    //borrado en cascada
+    //1ro borro los detalles de los items de la lista
+    int result = await db!.delete('items', where: 'idList = ?', whereArgs: [list.id]);
+
+    //luego borro los rubros
+    result = await db!.delete('lists', where: 'id = ?', whereArgs: [list.id]);
+
+    return result;
+
+  }
+
+  //delete "items"
+  Future<int> deleteItem(ListItems items) async{
+    //borro los items
+    int result = await db!.delete('items', where: 'id = ?', whereArgs: [items.id]);
+
+    return result;
+  }
 }
